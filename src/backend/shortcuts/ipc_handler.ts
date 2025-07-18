@@ -58,13 +58,22 @@ addListener('removeShortcut', async (event, appName, runner) => {
   })
 })
 
-addHandler('addToSteam', async (event, appName, runner) => {
-  const gameInfo = getInfo(appName, runner)
-
-  return addNonSteamGame({
-    gameInfo
-  })
-})
+addHandler(
+  'addToSteam',
+  async (event, appName, runner, customTitle?: string) => {
+    let gameInfo = getInfo(appName, runner)
+    if (customTitle) {
+      gameInfo = Object.assign({}, gameInfo)
+      gameInfo.title = customTitle
+      return addNonSteamGame({
+        gameInfo
+      })
+    }
+    return addNonSteamGame({
+      gameInfo
+    })
+  }
+)
 
 addHandler('removeFromSteam', async (event, appName, runner) => {
   const gameInfo = getInfo(appName, runner)

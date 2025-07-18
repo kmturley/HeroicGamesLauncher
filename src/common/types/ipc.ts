@@ -232,7 +232,11 @@ interface AsyncIPCFunctions {
   refreshWineVersionInfo: (fetch?: boolean) => Promise<void>
   removeWineVersion: (release: WineVersionInfo) => Promise<void>
   shortcutsExists: (appName: string, runner: Runner) => boolean
-  addToSteam: (appName: string, runner: Runner) => Promise<boolean>
+  addToSteam: (
+    appName: string,
+    runner: Runner,
+    customTitle?: string
+  ) => Promise<boolean>
   removeFromSteam: (appName: string, runner: Runner) => Promise<void>
   isAddedToSteam: (appName: string, runner: Runner) => Promise<boolean>
   getAnticheatInfo: (appNamespace: string) => Promise<AntiCheatInfo | null>

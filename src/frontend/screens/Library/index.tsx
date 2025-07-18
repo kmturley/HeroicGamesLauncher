@@ -590,6 +590,27 @@ export default React.memo(function Library(): JSX.Element {
     installing
   ])
 
+  useEffect(() => {
+    const addAllGamesToSteam = async () => {
+      const library: Array<GameInfo> = makeLibrary();
+      console.log(`addAllGamesToSteam adding ${library.length} games`);
+      const failures = [];
+      let index = 0;
+      for (const game of library) {
+        console.log(`${index} of ${library.length}`, `${game.title} (⤓)`);
+        try {
+          await window.api.addToSteam(game.app_name, game.runner, `${game.title} (⤓)`);
+        } catch (err) {
+          failures.push(game);
+        }
+        index += 1;
+      }
+      console.log(`addAllGamesToSteam added ${library.length - failures.length} games to Steam.`);
+      console.log('failures', failures.map((game) => `${game.title} (${game.app_name})`).join('\n'));
+    };
+    addAllGamesToSteam();
+  }, []);
+
   // we need this to do proper `position: sticky` of the Add Game area
   // the height of the Header can change at runtime with different font families
   // and when resizing the window
