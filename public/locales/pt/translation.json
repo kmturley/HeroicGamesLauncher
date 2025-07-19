@@ -574,6 +574,7 @@
         "adddesktopshortcuts": "Adicionar atalhos à area de trabalho automaticamente",
         "addgamestostartmenu": "Adicionar atalhos ao menu automaticamente",
         "addgamestosteam": "Add games to Steam automatically",
+        "addgamestosteamuninstalled": "Add uninstalled games to Steam automatically",
         "alt-gogdl-bin": "Selecione binário alternativo GOGDL para usar (Percisa reiniciar)",
         "alt-legendary-bin": "Selecione o binário alternativo Legendary (Percisa reiniciar)",
         "autodxvk": "Instalar/Atualizar DXVK automaticamente",

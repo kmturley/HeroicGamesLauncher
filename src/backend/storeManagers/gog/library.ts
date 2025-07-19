@@ -53,6 +53,7 @@ import { checkForRedistUpdates } from './redist'
 import { runGogdlCommandStub } from './e2eMock'
 import { gogdlConfigPath } from './constants'
 import { userDataPath } from 'backend/constants/paths'
+import { addNonSteamGamesBulk } from 'backend/shortcuts/nonesteamgame/nonesteamgame'
 
 const library: Map<string, GameInfo> = new Map()
 const installedGames: Map<string, InstalledInfo> = new Map()
@@ -76,6 +77,7 @@ export async function initGOGLibraryManager() {
     }
   })
   runOnceWhenOnline(checkForRedistUpdates)
+  addNonSteamGamesBulk(Array.from(library.values()))
 }
 
 async function createMissingGogdlManifest(

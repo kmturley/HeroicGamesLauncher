@@ -25,6 +25,8 @@ const Shortcuts = () => {
     'addSteamShortcuts',
     false
   )
+  const [addSteamShortcutsUninstalled, setAddSteamShortcutsUninstalled] =
+    useSetting('addSteamShortcutsUninstalled', false)
 
   if (!isDefault) {
     return <></>
@@ -67,6 +69,18 @@ const Shortcuts = () => {
         value={addSteamShortcuts}
         handleChange={() => setAddSteamShortcuts(!addSteamShortcuts)}
         title={t('setting.addgamestosteam', 'Add games to Steam automatically')}
+      />
+
+      <ToggleSwitch
+        htmlId="shortcutsToSteamUninstalled"
+        value={addSteamShortcutsUninstalled}
+        handleChange={() =>
+          setAddSteamShortcutsUninstalled(!addSteamShortcutsUninstalled)
+        }
+        title={t(
+          'setting.addgamestosteamuninstalled',
+          'Add uninstalled games to Steam automatically'
+        )}
       />
     </>
   )

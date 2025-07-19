@@ -24,6 +24,7 @@ import { copySync } from 'fs-extra'
 import { NileUser } from './user'
 import { runNileCommandStub } from './e2eMock'
 import { nileConfigPath, nileInstalled, nileLibrary } from './constants'
+import { addNonSteamGamesBulk } from 'backend/shortcuts/nonesteamgame/nonesteamgame'
 
 const installedGames: Map<string, NileInstallMetadataInfo> = new Map()
 const library: Map<string, GameInfo> = new Map()
@@ -37,6 +38,7 @@ export async function initNileLibraryManager() {
   }
 
   refresh()
+  addNonSteamGamesBulk(Array.from(library.values()))
 }
 
 /**

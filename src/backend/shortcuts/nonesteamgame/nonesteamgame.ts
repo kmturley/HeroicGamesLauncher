@@ -22,7 +22,10 @@ import { logError, logInfo, LogPrefix, logWarning } from 'backend/logger'
 import i18next from 'i18next'
 import { notify, showDialogBoxModalAuto } from '../../dialog/dialog'
 import { GlobalConfig } from '../../config'
-import { getWikiGameInfo } from 'backend/wiki_game_info/wiki_game_info'
+import {
+  getSteamId,
+  getWikiGameInfo
+} from 'backend/wiki_game_info/wiki_game_info'
 import { tsStore } from 'backend/constants/key_value_stores'
 import { isAppImage, isFlatpak, isWindows } from 'backend/constants/environment'
 
@@ -196,6 +199,119 @@ function checkIfShortcutObjectIsValid(
 function checkIfAlreadyAdded(object: Partial<ShortcutObject>, title: string) {
   const shortcuts = object.shortcuts ?? []
   return shortcuts.findIndex((entry) => getAppName(entry) === title)
+}
+
+async function addNonSteamGamesBulk(games: GameInfo[]) {
+  const { addSteamShortcutsUninstalled } = GlobalConfig.get().getSettings()
+  logInfo(
+    `addNonSteamGamesBulk: ${addSteamShortcutsUninstalled} ${games.length}`,
+    LogPrefix.Shortcuts
+  )
+  if (!addSteamShortcutsUninstalled) return
+
+  // Loop through user data directories
+  const steamUserdataDir = await getSteamUserdataDir()
+  const { folders, error } = checkSteamUserDataDir(steamUserdataDir)
+  if (error) {
+    logError(error, LogPrefix.Shortcuts)
+    return
+  }
+  const errors = []
+  for (const folder of folders) {
+    // Load shortcuts file
+    const configDir = join(steamUserdataDir, folder, 'config')
+    const shortcutsFile = join(configDir, 'shortcuts.vdf')
+    if (!existsSync(configDir)) {
+      mkdirSync(configDir)
+    }
+    if (!existsSync(shortcutsFile)) {
+      writeShortcutFile(shortcutsFile, { shortcuts: [] })
+    }
+    const content = readShortcutFile(shortcutsFile)
+    content.shortcuts = content.shortcuts ?? []
+    const checkResult = checkIfShortcutObjectIsValid(content)
+    if (!checkResult.success) {
+      errors.push(`"${shortcutsFile}" is corrupted!`, ...checkResult.errors)
+      continue
+    }
+
+    // Loop through games and add them to shortcuts
+    for (const game of games) {
+      if (checkIfAlreadyAdded(content, game.title) > -1) continue
+
+      const newEntry = {} as ShortcutEntry
+      newEntry.AppName = game.title
+      newEntry.Exe = `"${app.getPath('exe')}"`
+      newEntry.StartDir = `"${process.cwd()}"`
+
+      if (isFlatpak) {
+        newEntry.Exe = `"flatpak"`
+      } else if (!isWindows && isAppImage) {
+        newEntry.Exe = `"${process.env.APPIMAGE}"`
+      } else if (isWindows && process.env.PORTABLE_EXECUTABLE_FILE) {
+        newEntry.Exe = `"${process.env.PORTABLE_EXECUTABLE_FILE}"`
+        newEntry.StartDir = `"${process.env.PORTABLE_EXECUTABLE_DIR}"`
+      }
+
+      newEntry.appid = generateShortcutId(newEntry.Exe, newEntry.AppName)
+
+      await getIcon(game.app_name, game)
+        .then((path) => (newEntry.icon = path))
+        .catch((error) =>
+          logWarning(
+            [`Couldn't find a icon for ${game.title} with:`, error],
+            LogPrefix.Shortcuts
+          )
+        )
+
+      const steamID = await getSteamId(game.title, game.app_name, game.runner)
+      await prepareImagesForSteam({
+        steamUserConfigDir: configDir,
+        appID: {
+          bigPictureAppID: generateAppId(newEntry.Exe, newEntry.AppName),
+          otherGridAppID: generateShortAppId(newEntry.Exe, newEntry.AppName)
+        },
+        gameInfo: game,
+        steamID: steamID
+      })
+
+      const args = []
+      args.push('--no-gui')
+      if (!isWindows) {
+        args.push('--no-sandbox')
+      }
+
+      args.push(
+        `"heroic://launch?appName=${game.app_name}&runner=${game.runner}"`
+      )
+      newEntry.LaunchOptions = args.join(' ')
+      if (isFlatpak) {
+        newEntry.LaunchOptions = `run com.heroicgameslauncher.hgl ${newEntry.LaunchOptions}`
+      }
+      newEntry.IsHidden = false
+      newEntry.AllowDesktopConfig = true
+      newEntry.AllowOverlay = true
+      newEntry.OpenVR = false
+      newEntry.Devkit = false
+      newEntry.DevkitOverrideAppID = false
+
+      const lastPlayed = tsStore.get_nodefault(`${game.app_name}.lastPlayed`)
+      if (lastPlayed) {
+        newEntry.LastPlayTime = new Date(lastPlayed)
+      } else {
+        newEntry.LastPlayTime = new Date()
+      }
+      content.shortcuts.push(newEntry)
+    }
+
+    // rewrite shortcuts.vdf
+    logInfo(`shortcutsFile updated: ${shortcutsFile}`, LogPrefix.Shortcuts)
+    const writeError = writeShortcutFile(shortcutsFile, content)
+    if (writeError) {
+      errors.push(writeError)
+      continue
+    }
+  }
 }
 
 /**
@@ -536,4 +652,9 @@ async function isAddedToSteam(props: {
   return added
 }
 
-export { addNonSteamGame, removeNonSteamGame, isAddedToSteam }
+export {
+  addNonSteamGame,
+  addNonSteamGamesBulk,
+  removeNonSteamGame,
+  isAddedToSteam
+}

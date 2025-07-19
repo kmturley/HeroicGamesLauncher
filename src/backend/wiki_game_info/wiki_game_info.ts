@@ -11,6 +11,18 @@ import { getInfoFromPCGamingWiki } from './pcgamingwiki/utils'
 import { getUmuId } from './umu/utils'
 import { isLinux, isMac } from 'backend/constants/environment'
 
+export async function getSteamId(
+  title: string,
+  appName: string,
+  runner: Runner
+): Promise<string | undefined> {
+  const [pcgamingwiki, gamesdb] = await Promise.all([
+    getInfoFromPCGamingWiki(title, runner === 'gog' ? appName : undefined),
+    getInfoFromGamesDB(title, appName, runner)
+  ])
+  return gamesdb?.steamID || pcgamingwiki?.steamID
+}
+
 export async function getWikiGameInfo(
   title: string,
   appName: string,

@@ -50,6 +50,7 @@ import { Entries } from 'type-fest'
 import { runLegendaryCommandStub } from './e2eMock'
 import { legendaryConfigPath, legendaryMetadata } from './constants'
 import { isWindows } from 'backend/constants/environment'
+import { addNonSteamGamesBulk } from 'backend/shortcuts/nonesteamgame/nonesteamgame'
 
 const fallBackImage = 'fallback'
 
@@ -60,6 +61,7 @@ const library: Map<string, GameInfo> = new Map()
 export async function initLegendaryLibraryManager() {
   loadGamesInAccount()
   refreshInstalled()
+  addNonSteamGamesBulk(Array.from(library.values()))
 }
 
 /**
