@@ -541,6 +541,7 @@
         "adddesktopshortcuts": "Desktop shortcuts automatish toevoegen",
         "addgamestostartmenu": "Spellen automatish toevoegen aan start menu",
         "addgamestosteam": "Add games to Steam automatically",
+        "addgamestosteamuninstalled": "Add uninstalled games to Steam automatically",
         "alt-gogdl-bin": "Kies een Alternatief GOGDL Binary om te gebruiken",
         "alt-legendary-bin": "Kies een Alternatief Legendary Binary",
         "autodxvk": "Automatisch installeren/updated van DXVK op Prefix",

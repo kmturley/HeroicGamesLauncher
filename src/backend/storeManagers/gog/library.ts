@@ -53,6 +53,7 @@ import { checkForRedistUpdates } from './redist'
 import { runGogdlCommandStub } from './e2eMock'
 import { gogdlConfigPath } from './constants'
 import { userDataPath } from 'backend/constants/paths'
+import { addShortcuts } from 'backend/shortcuts/shortcuts/shortcuts'
 
 const library: Map<string, GameInfo> = new Map()
 const installedGames: Map<string, InstalledInfo> = new Map()
@@ -446,6 +447,10 @@ export async function refresh(): Promise<ExecResult> {
   apiInfoCache.commit() // Sync cache to drive
   libraryStore.set('games', gamesObjects)
   logInfo('Saved games data', LogPrefix.Gog)
+
+  for (const game of gamesObjects) {
+    await addShortcuts(game, false)
+  }
 
   return defaultExecResult
 }

@@ -481,6 +481,7 @@
         "adddesktopshortcuts": "Gehitu mahaigaineko lasterbideak automatikoki",
         "addgamestostartmenu": "Gehitu jokoak menua automatikoki hasteko",
         "addgamestosteam": "Add games to Steam automatically",
+        "addgamestosteamuninstalled": "Add uninstalled games to Steam automatically",
         "alt-gogdl-bin": "Aukeratu GOGDL Binario alternatibo bat erabiltzeko",
         "alt-legendary-bin": "Aukeratu kondairazko bitar alternatibo bat",
         "autodxvk": "Instalatu/Eguneratu automatikoki DXVK aurrizkian",

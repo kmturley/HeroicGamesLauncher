@@ -50,6 +50,7 @@ import { Entries } from 'type-fest'
 import { runLegendaryCommandStub } from './e2eMock'
 import { legendaryConfigPath, legendaryMetadata } from './constants'
 import { isWindows } from 'backend/constants/environment'
+import { addShortcuts } from 'backend/shortcuts/shortcuts/shortcuts'
 
 const fallBackImage = 'fallback'
 
@@ -171,6 +172,10 @@ export async function refresh(): Promise<ExecResult | null> {
     ['Game list updated, got', `${arr.length}`, 'games & DLCs'],
     LogPrefix.Legendary
   )
+
+  for (const game of library.values()) {
+    await addShortcuts(game, false)
+  }
   return defaultExecResult
 }
 

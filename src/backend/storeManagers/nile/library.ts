@@ -24,6 +24,7 @@ import { copySync } from 'fs-extra'
 import { NileUser } from './user'
 import { runNileCommandStub } from './e2eMock'
 import { nileConfigPath, nileInstalled, nileLibrary } from './constants'
+import { addShortcuts } from 'backend/shortcuts/shortcuts/shortcuts'
 
 const installedGames: Map<string, NileInstallMetadataInfo> = new Map()
 const library: Map<string, GameInfo> = new Map()
@@ -271,6 +272,10 @@ export async function refresh(): Promise<ExecResult | null> {
   const arr = Array.from(library.values())
   libraryStore.set('library', arr)
   logInfo(['Game list updated, got', `${arr.length}`, 'games'], LogPrefix.Nile)
+
+  for (const game of library.values()) {
+    await addShortcuts(game, false)
+  }
 
   return defaultExecResult
 }
